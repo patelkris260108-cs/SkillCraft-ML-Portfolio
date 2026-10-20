@@ -129,18 +129,25 @@ class HousePricePredictor:
 
         return prediction
 
-    def predict_batch(self, input_data: List[Dict]) -> List[float]:
+    def predict_batch(self, input_data: Union[List[Dict], pd.DataFrame]) -> List[float]:
         """
         Predict prices for multiple houses using vectorized inference.
 
         Args:
-            input_data: List of dictionaries with features
+            input_data: List of dictionaries or DataFrame with features
 
         Returns:
             List of predicted prices
         """
-        if not input_data:
-            return []
+        # Handle empty input
+        if isinstance(input_data, list):
+            if len(input_data) == 0:
+                return []
+        elif isinstance(input_data, pd.DataFrame):
+            if input_data.empty:
+                return []
+        else:
+            raise ValueError("Input must be list of dicts or DataFrame")
 
         # Convert to DataFrame for vectorized processing
         df = pd.DataFrame(input_data)
