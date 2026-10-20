@@ -1,0 +1,49 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Virtual environments
+.venv/
+venv/
+env/
+.env
+
+# Data files (raw data should not be committed)
+data/**/raw/
+*.csv
+!requirements.txt
+
+# Model artifacts
+models/
+*.joblib
+*.pkl
+*.h5
+*.keras
+
+# Jupyter Notebook
+.ipynb_checkpoints
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+
+# Streamlit
+.streamlit/
+
+# Kaggle credentials
+kaggle.json
+.kaggle/
+
+# Environment variables
+.env.local
+.env.*.local

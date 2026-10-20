@@ -1,0 +1,22 @@
+{
+  "Val_MAE": 35788.061292435326,
+  "Val_RMSE": 52975.71771337444,
+  "Val_R2": 0.6341189942329308,
+  "Val_MAPE": 22.483233309212565,
+  "Val_MedAE": 25193.17716642208,
+  "Val_Log_MAE": 0.2045305740029237,
+  "Val_Log_RMSE": 0.27238961148113355,
+  "Val_Log_R2": 0.602402296864505,
+  "Val_Log_MAPE": 1.7231110630300213,
+  "Val_Log_MedAE": 0.1553438037078303,
+  "model": "LinearRegression",
+  "features": [
+    "GrLivArea",
+    "BedroomAbvGr",
+    "FullBath"
+  ],
+  "target_transform": "none",
+  "train_size": 1168,
+  "val_size": 292,
+  "random_state": 42
+}
