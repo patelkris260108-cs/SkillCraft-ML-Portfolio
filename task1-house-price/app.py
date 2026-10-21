@@ -127,7 +127,7 @@ CUSTOM_CSS = """
   --shadow-md: 0 4px 12px rgba(26, 28, 30, 0.05);
   --shadow-lg: 0 8px 24px rgba(26, 28, 30, 0.06);
 
-  /* Transitions — Fast, purposeful */
+  /* Transitions — Fast, purposeful (transform/opacity only per guidelines) */
   --transition-fast: 120ms ease;
   --transition-normal: 200ms ease;
 
@@ -135,6 +135,32 @@ CUSTOM_CSS = """
   --max-width: 1120px;
   --sidebar-width: 260px;
   --header-height: 56px;
+
+  /* Safe area insets for mobile notches */
+  --safe-top: env(safe-area-inset-top, 0);
+  --safe-right: env(safe-area-inset-right, 0);
+  --safe-bottom: env(safe-area-inset-bottom, 0);
+  --safe-left: env(safe-area-inset-left, 0);
+}
+
+/* Dark mode support */
+@media (prefers-color-scheme: dark) {
+  :root {
+    --color-bg: #1A1C1E;
+    --color-surface: #232528;
+    --color-surface-muted: #2A2D30;
+    --color-text: #F5F3F0;
+    --color-text-muted: #B8B5B0;
+    --color-text-faint: #8A8783;
+    --color-text-inverse: #1A1C1E;
+    --color-border: #3D3B38;
+    --color-border-strong: #4A4845;
+    --color-accent-light: #0A3D36;
+    --color-accent-border: #1A5C52;
+    --color-success-light: #1A3D2A;
+    --color-warning-light: #3D351A;
+    --color-danger-light: #3D1A1A;
+  }
 }
 
 /* ============================================================================
@@ -312,7 +338,12 @@ header { visibility: hidden; }
 .eiq-badge--neutral .eiq-badge__dot { background: var(--color-text-faint); }
 
 /* --- Buttons — Clear primary/secondary distinction --- */
-.stButton > button {
+/* Primary buttons - target all primary variants (including form submit) */
+.stButton > button[kind="primary"],
+.stButton > button[kind="primaryFormSubmit"],
+.stButton > button[data-testid="baseButton-primary"],
+.stFormSubmitButton > button[kind="primaryFormSubmit"],
+[data-testid="stFormSubmitButton"] > button[kind="primaryFormSubmit"] {
   background: var(--color-accent) !important;
   color: var(--color-text-inverse) !important;
   border: none !important;
@@ -324,60 +355,120 @@ header { visibility: hidden; }
   transition: background-color var(--transition-fast), transform var(--transition-fast), box-shadow var(--transition-fast) !important;
   box-shadow: var(--shadow-sm) !important;
 }
-.stButton > button:hover {
+.stButton > button[kind="primary"]:hover,
+.stButton > button[kind="primaryFormSubmit"]:hover,
+.stButton > button[data-testid="baseButton-primary"]:hover,
+.stFormSubmitButton > button[kind="primaryFormSubmit"]:hover,
+[data-testid="stFormSubmitButton"] > button[kind="primaryFormSubmit"]:hover {
   background: var(--color-accent-hover) !important;
   transform: translateY(-1px);
   box-shadow: var(--shadow-md) !important;
 }
-.stButton > button:active { transform: translateY(0); box-shadow: var(--shadow-sm) !important; }
-.stButton > button:focus-visible {
+.stButton > button[kind="primary"]:active,
+.stButton > button[kind="primaryFormSubmit"]:active,
+.stButton > button[data-testid="baseButton-primary"]:active,
+.stFormSubmitButton > button[kind="primaryFormSubmit"]:active,
+[data-testid="stFormSubmitButton"] > button[kind="primaryFormSubmit"]:active {
+  transform: translateY(0);
+  box-shadow: var(--shadow-sm) !important;
+}
+.stButton > button[kind="primary"]:focus-visible,
+.stButton > button[kind="primaryFormSubmit"]:focus-visible,
+.stButton > button[data-testid="baseButton-primary"]:focus-visible,
+.stFormSubmitButton > button[kind="primaryFormSubmit"]:focus-visible,
+[data-testid="stFormSubmitButton"] > button[kind="primaryFormSubmit"]:focus-visible {
   outline: 2px solid var(--color-accent);
   outline-offset: 2px;
 }
 
 /* Secondary button variant */
 .stButton > button[kind="secondary"],
-.stButton > button[data-testid="baseButton-secondary"] {
+.stButton > button[data-testid="baseButton-secondary"],
+.stFormSubmitButton > button[kind="secondary"],
+[data-testid="stFormSubmitButton"] > button[kind="secondary"] {
   background: var(--color-surface) !important;
   color: var(--color-text) !important;
   border: 1px solid var(--color-border-strong) !important;
   box-shadow: var(--shadow-sm) !important;
 }
 .stButton > button[kind="secondary"]:hover,
-.stButton > button[data-testid="baseButton-secondary"]:hover {
+.stButton > button[data-testid="baseButton-secondary"]:hover,
+.stFormSubmitButton > button[kind="secondary"]:hover,
+[data-testid="stFormSubmitButton"] > button[kind="secondary"]:hover {
+  background: var(--color-surface-muted) !important;
+  border-color: var(--color-border-strong) !important;
+}
+
+/* Default button (no kind specified) - make it secondary */
+.stButton > button:not([kind]),
+.stFormSubmitButton > button:not([kind]),
+[data-testid="stFormSubmitButton"] > button:not([kind]) {
+  background: var(--color-surface) !important;
+  color: var(--color-text) !important;
+  border: 1px solid var(--color-border-strong) !important;
+  box-shadow: var(--shadow-sm) !important;
+  border-radius: var(--radius-md) !important;
+  padding: var(--space-2) var(--space-5) !important;
+  font-size: var(--text-sm) !important;
+  font-weight: var(--font-medium) !important;
+}
+.stButton > button:not([kind]):hover,
+.stFormSubmitButton > button:not([kind]):hover,
+[data-testid="stFormSubmitButton"] > button:not([kind]):hover {
   background: var(--color-surface-muted) !important;
   border-color: var(--color-border-strong) !important;
 }
 
 /* --- Form Inputs — Clean, accessible --- */
-.stTextInput > div > div > input,
-.stNumberInput > div > div > input,
-.stSelectbox > div > div > div,
-.stSlider > div > div > div {
+/* Target the actual input elements more specifically */
+.stTextInput input,
+.stNumberInput input,
+.stSelectbox [data-baseweb="select"] > div,
+.stMultiSelect [data-baseweb="select"] > div {
   border-radius: var(--radius-md) !important;
   border: 1px solid var(--color-border-strong) !important;
-  transition: border-color var(--transition-fast), box-shadow var(--transition-fast) !important;
+  background: var(--color-surface) !important;
+  color: var(--color-text) !important;
+  transition: border-color var(--transition-fast), box-shadow var(--transition-fast), background var(--transition-fast) !important;
 }
-.stTextInput > div > div > input:focus,
-.stNumberInput > div > div > input:focus,
-.stSelectbox > div > div > div:focus-within {
+.stTextInput input:focus,
+.stNumberInput input:focus,
+.stSelectbox [data-baseweb="select"] > div:focus-within,
+.stMultiSelect [data-baseweb="select"] > div:focus-within {
   border-color: var(--color-border-focus) !important;
   box-shadow: 0 0 0 3px var(--color-accent-light) !important;
+  background: var(--color-surface) !important;
 }
+/* Labels */
 .stTextInput label,
 .stNumberInput label,
 .stSelectbox label,
-.stSlider label {
+.stSlider label,
+.stMultiSelect label {
   font-weight: var(--font-medium) !important;
   color: var(--color-text) !important;
   font-size: var(--text-sm) !important;
 }
+/* Number input stepper buttons */
+.stNumberInput button {
+  background: var(--color-surface-muted) !important;
+  color: var(--color-text) !important;
+  border: 1px solid var(--color-border) !important;
+  border-radius: var(--radius-sm) !important;
+}
+.stNumberInput button:hover {
+  background: var(--color-border) !important;
+}
 
 /* --- Tables --- */
-.stDataFrame {
+.stDataFrame,
+.stDataFrame > div,
+.stDataFrame [data-testid="stTable"],
+[data-testid="stDataFrame"] {
   border-radius: var(--radius-md) !important;
   overflow: hidden;
   border: 1px solid var(--color-border) !important;
+  background: var(--color-surface) !important;
 }
 .stDataFrame table { font-size: var(--text-sm) !important; }
 .stDataFrame th {
@@ -387,6 +478,11 @@ header { visibility: hidden; }
   border-bottom: 2px solid var(--color-border-strong) !important;
 }
 .stDataFrame td { border-bottom: 1px solid var(--color-border) !important; }
+/* Ensure DataFrame container has white background */
+.stDataFrame [data-testid="stDataFrameContainer"],
+.stDataFrame [data-testid="stDataFrameResizable"] {
+  background: var(--color-surface) !important;
+}
 
 /* --- Metrics (st.metric) --- */
 [data-testid="stMetric"] {
@@ -470,6 +566,51 @@ header { visibility: hidden; }
   margin-bottom: -1px;
 }
 
+/* --- Radio (used for sidebar navigation) --- */
+.stRadio {
+  background: transparent !important;
+}
+.stRadio > label {
+  display: none !important; /* Hide the "Navigation" label since we have our own */
+}
+.stRadio [role="radiogroup"] {
+  display: flex !important;
+  flex-direction: column !important;
+  gap: var(--space-1) !important;
+}
+/* Streamlit renders radio options as labels with data-baseweb="radio" */
+.stRadio [data-baseweb="radio"] {
+  background: transparent !important;
+  border: none !important;
+  border-radius: var(--radius-md) !important;
+  padding: var(--space-2) var(--space-3) !important;
+  font-weight: var(--font-medium) !important;
+  color: var(--color-text-muted) !important;
+  font-size: var(--text-sm) !important;
+  transition: background var(--transition-fast), color var(--transition-fast) !important;
+  cursor: pointer !important;
+  display: block !important;
+}
+.stRadio [data-baseweb="radio"]:hover {
+  background: var(--color-surface-muted) !important;
+  color: var(--color-text) !important;
+}
+.stRadio [data-baseweb="radio"][aria-checked="true"] {
+  background: var(--color-accent-light) !important;
+  color: var(--color-accent) !important;
+  font-weight: var(--font-semibold) !important;
+}
+.stRadio [data-baseweb="radio"]:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 2px;
+}
+/* The inner input element */
+.stRadio [data-baseweb="radio"] input {
+  position: absolute !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
+}
+
 /* --- File Uploader --- */
 .stFileUploader {
   border: 2px dashed var(--color-border-strong) !important;
@@ -503,6 +644,154 @@ header { visibility: hidden; }
 .stProgress > div > div > div {
   background: var(--color-accent) !important;
   border-radius: var(--radius-full) !important;
+}
+
+/* --- Checkbox --- */
+.stCheckbox {
+  gap: var(--space-2) !important;
+}
+.stCheckbox label {
+  color: var(--color-text) !important;
+  font-size: var(--text-sm) !important;
+  font-weight: var(--font-medium) !important;
+}
+.stCheckbox [data-testid="stCheckbox"] > label > div:first-child {
+  border: 2px solid var(--color-border-strong) !important;
+  border-radius: var(--radius-sm) !important;
+  background: var(--color-surface) !important;
+  transition: border-color var(--transition-fast), background var(--transition-fast) !important;
+}
+.stCheckbox [data-testid="stCheckbox"] > label > div:first-child:hover {
+  border-color: var(--color-accent) !important;
+}
+.stCheckbox [data-testid="stCheckbox"] input:checked + div {
+  background: var(--color-accent) !important;
+  border-color: var(--color-accent) !important;
+}
+.stCheckbox [data-testid="stCheckbox"] input:focus-visible + div {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 2px;
+}
+
+/* --- Selectbox Dropdown Options --- */
+.stSelectbox [data-baseweb="popover"] [data-baseweb="menu"] {
+  background: var(--color-surface) !important;
+  border: 1px solid var(--color-border) !important;
+  border-radius: var(--radius-md) !important;
+  box-shadow: var(--shadow-lg) !important;
+}
+.stSelectbox [data-baseweb="popover"] [role="option"] {
+  color: var(--color-text) !important;
+  font-size: var(--text-sm) !important;
+  padding: var(--space-2) var(--space-3) !important;
+}
+.stSelectbox [data-baseweb="popover"] [role="option"]:hover,
+.stSelectbox [data-baseweb="popover"] [role="option"][aria-selected="true"] {
+  background: var(--color-accent-light) !important;
+  color: var(--color-accent) !important;
+}
+
+/* --- Slider Track & Thumb --- */
+.stSlider [data-testid="stSliderTrack"] {
+  background: var(--color-border) !important;
+  height: 4px !important;
+  border-radius: var(--radius-full) !important;
+}
+.stSlider [data-testid="stSliderTrack"] > div {
+  background: var(--color-accent) !important;
+}
+.stSlider [data-testid="stThumbValue"] {
+  background: var(--color-accent) !important;
+  color: var(--color-text-inverse) !important;
+  border-radius: var(--radius-full) !important;
+  padding: var(--space-1) var(--space-2) !important;
+  font-size: var(--text-xs) !important;
+  font-weight: var(--font-semibold) !important;
+}
+
+/* --- Multiselect --- */
+.stMultiSelect [data-baseweb="tag"] {
+  background: var(--color-accent-light) !important;
+  border-color: var(--color-accent-border) !important;
+  color: var(--color-accent) !important;
+}
+.stMultiSelect [data-baseweb="tag"] [data-baseweb="tag-icon"] {
+  color: var(--color-accent) !important;
+}
+
+/* --- Date/Time Input --- */
+.stDateInput input,
+.stTimeInput input {
+  border-radius: var(--radius-md) !important;
+  border: 1px solid var(--color-border-strong) !important;
+}
+.stDateInput input:focus,
+.stTimeInput input:focus {
+  border-color: var(--color-border-focus) !important;
+  box-shadow: 0 0 0 3px var(--color-accent-light) !important;
+}
+
+/* --- Markdown / Text elements --- */
+.stMarkdown {
+  color: var(--color-text);
+}
+.stMarkdown h1, .stMarkdown h2, .stMarkdown h3,
+.stMarkdown h4, .stMarkdown h5, .stMarkdown h6 {
+  color: var(--color-text) !important;
+}
+.stMarkdown code {
+  background: var(--color-surface-muted) !important;
+  color: var(--color-accent) !important;
+}
+.stMarkdown pre {
+  background: var(--color-text) !important;
+  color: var(--color-text-inverse) !important;
+}
+.stMarkdown pre code {
+  background: none !important;
+  color: inherit !important;
+}
+.stMarkdown a {
+  color: var(--color-accent) !important;
+}
+.stMarkdown a:hover {
+  text-decoration: underline !important;
+}
+
+/* --- Container/Border for st.container with border --- */
+.stContainer[data-testid="stVerticalBlockBorderWrapper"] {
+  border: 1px solid var(--color-border) !important;
+  border-radius: var(--radius-lg) !important;
+  background: var(--color-surface) !important;
+  padding: var(--space-4) !important;
+  box-shadow: var(--shadow-sm) !important;
+}
+
+/* --- Caption / Small text --- */
+.stCaption, .stMarkdown .caption {
+  color: var(--color-text-muted) !important;
+  font-size: var(--text-xs) !important;
+}
+
+/* --- Horizontal Rule --- */
+hr {
+  border: none !important;
+  border-top: 1px solid var(--color-border) !important;
+  margin: var(--space-5) 0 !important;
+}
+
+/* --- Image --- */
+.stImage {
+  border-radius: var(--radius-md) !important;
+  overflow: hidden !important;
+}
+
+/* --- JSON / Code display --- */
+.stJson {
+  background: var(--color-surface) !important;
+  border: 1px solid var(--color-border) !important;
+  border-radius: var(--radius-md) !important;
+  padding: var(--space-3) !important;
 }
 
 /* --- Result Card (Prediction Output) — Single prominent surface --- */
@@ -997,10 +1286,10 @@ def render_overview() -> None:
             </p>
             """, unsafe_allow_html=True)
 
-            # Quick actions — secondary buttons
+            # Quick actions — primary + secondary
             col_a, col_b = st.columns(2)
             with col_a:
-                if st.button("Predict a House Price", use_container_width=True, key="quick_predict"):
+                if st.button("Predict a House Price", use_container_width=True, type="primary", key="quick_predict"):
                     st.session_state.current_section = "predict"
                     st.rerun()
             with col_b:
