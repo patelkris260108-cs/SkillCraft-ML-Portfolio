@@ -30,6 +30,17 @@ sys.path.insert(0, str(Path(__file__).parent / "src"))
 
 from predict import HousePricePredictor, create_sample_input
 from data_loader import BASELINE_FEATURES, TARGET_COLUMN
+from viz_3d import (
+    load_training_data,
+    load_validation_predictions,
+    create_3d_scatter_chart,
+    create_sale_price_distribution_chart,
+    create_living_area_vs_price_chart,
+    create_quality_comparison_chart,
+    create_neighborhood_comparison_chart,
+    create_actual_vs_predicted_chart,
+    create_residual_chart,
+)
 
 # ──────────────────────────────────────────────────────────────────────────────
 # PAGE CONFIGURATION
@@ -54,33 +65,39 @@ st.set_page_config(
 CUSTOM_CSS = """
 <style>
 /* ============================================================================
-   ESTATEIQ DESIGN TOKENS — Refined, Premium Palette
+   ESTATEIQ DESIGN TOKENS — Light Theme (Premium Real-Estate Analytics)
    ============================================================================ */
 :root {
-  /* Color Palette — Warm ivory canvas, deep charcoal text, muted teal accent */
-  --color-bg: #FDFBF7;                    /* Warm ivory page background */
-  --color-surface: #FFFFFF;               /* Pure white cards/surfaces */
-  --color-surface-muted: #F6F3ED;         /* Subtle alternate surface */
+  /* Color Palette — Warm off-white page bg, clean white cards, dark charcoal text */
+  --color-bg: #FAF7F3;                    /* Warm off-white page background */
+  --color-surface: #FFFFFF;               /* Clean white primary surfaces */
+  --color-surface-muted: #F1ECE1;         /* Very light warm grey secondary surfaces */
+  --color-surface-elevated: #E8DECF;      /* Slightly darker warm grey (elevated) */
 
-  --color-text: #1A1C1E;                  /* Deep charcoal primary text */
-  --color-text-muted: #6B6D70;            /* Muted secondary text */
-  --color-text-faint: #9A9C9F;            /* Faint tertiary text */
-  --color-text-inverse: #FFFFFF;          /* White on dark */
+  --color-text: #1A1A1A;                  /* Dark charcoal primary text */
+  --color-text-muted: #6B7280;            /* Readable grey secondary text */
+  --color-text-faint: #9CA3AF;            /* Lighter grey tertiary text */
+  --color-text-inverse: #FFFFFF;          /* Light text on accent backgrounds */
 
-  --color-accent: #0D7A6D;                /* Muted teal primary action */
-  --color-accent-hover: #0A5F55;
-  --color-accent-light: #E8F4F2;          /* 10% accent for backgrounds */
-  --color-accent-border: #B8DCD6;
+  --color-accent: #0D9488;                /* Teal/dark green primary action */
+  --color-accent-hover: #0F766E;
+  --color-accent-light: #CCF7F1;          /* Light teal for backgrounds */
+  --color-accent-border: #14B8A6;
+  --color-accent-glow: rgba(13, 148, 136, 0.15); /* Subtle glow */
 
-  --color-success: #1E7D32;
-  --color-success-light: #E8F5E9;
-  --color-warning: #B8860B;
-  --color-warning-light: #FFF8E1;
-  --color-danger: #C62828;
-  --color-danger-light: #FDEDEC;
+  --color-secondary-accent: #57C7E8;      /* Cyan analytical accent */
+  --color-secondary-accent-light: #E0F7FE;
+  --color-secondary-accent-border: #22D3EE;
 
-  --color-border: #E8E4DC;                /* Restrained neutral border */
-  --color-border-strong: #D0CDC5;         /* Stronger border for focus */
+  --color-success: #15803D;
+  --color-success-light: #DCFCE7;
+  --color-warning: #D97706;
+  --color-warning-light: #FEF3C7;
+  --color-danger: #DC2626;
+  --color-danger-light: #FEE2E2;
+
+  --color-border: #E5E2DD;                /* Subtle warm grey border */
+  --color-border-strong: #D6D3CE;         /* Stronger border for focus */
   --color-border-focus: var(--color-accent);
 
   /* Typography — System font stack, clear scale */
@@ -122,18 +139,20 @@ CUSTOM_CSS = """
   --radius-lg: 10px;
   --radius-full: 9999px;
 
-  /* Shadows — Subtle, only where depth communicates hierarchy */
-  --shadow-sm: 0 1px 2px rgba(26, 28, 30, 0.04);
-  --shadow-md: 0 4px 12px rgba(26, 28, 30, 0.05);
-  --shadow-lg: 0 8px 24px rgba(26, 28, 30, 0.06);
+  /* Shadows — Layered depth for light theme */
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.08);
+  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.1);
+  --shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.12);
+  --shadow-glow: 0 0 24px var(--color-accent-glow);
 
   /* Transitions — Fast, purposeful (transform/opacity only per guidelines) */
   --transition-fast: 120ms ease;
   --transition-normal: 200ms ease;
+  --transition-slow: 300ms ease;
 
   /* Layout */
-  --max-width: 1120px;
-  --sidebar-width: 260px;
+  --max-width: 1200px;
+  --sidebar-width: 280px;
   --header-height: 56px;
 
   /* Safe area insets for mobile notches */
@@ -141,26 +160,19 @@ CUSTOM_CSS = """
   --safe-right: env(safe-area-inset-right, 0);
   --safe-bottom: env(safe-area-inset-bottom, 0);
   --safe-left: env(safe-area-inset-left, 0);
-}
 
-/* Dark mode support */
-@media (prefers-color-scheme: dark) {
-  :root {
-    --color-bg: #1A1C1E;
-    --color-surface: #232528;
-    --color-surface-muted: #2A2D30;
-    --color-text: #F5F3F0;
-    --color-text-muted: #B8B5B0;
-    --color-text-faint: #8A8783;
-    --color-text-inverse: #1A1C1E;
-    --color-border: #3D3B38;
-    --color-border-strong: #4A4845;
-    --color-accent-light: #0A3D36;
-    --color-accent-border: #1A5C52;
-    --color-success-light: #1A3D2A;
-    --color-warning-light: #3D351A;
-    --color-danger-light: #3D1A1A;
-  }
+  /* 3D Chart Visual Spec — Light theme chart colors */
+  --chart-bg: var(--color-surface);
+  --chart-grid: rgba(26, 26, 26, 0.06);
+  --chart-axis: rgba(26, 26, 26, 0.15);
+  --chart-text: var(--color-text);
+  --chart-text-muted: var(--color-text-muted);
+  --chart-tooltip-bg: var(--color-surface-elevated);
+  --chart-tooltip-border: var(--color-border);
+  --chart-legend-bg: var(--color-surface);
+  --chart-selection: var(--color-accent);
+  --chart-highlight: var(--color-secondary-accent);
+  --chart-loading: var(--color-border);
 }
 
 /* ============================================================================
@@ -201,15 +213,17 @@ code {
   padding: 0.125rem 0.375rem;
   border-radius: var(--radius-sm);
   font-size: 0.875em;
+  color: var(--color-accent);
 }
 pre {
-  background: var(--color-text);
-  color: var(--color-text-inverse);
+  background: var(--color-surface-muted);
+  color: var(--color-text);
   padding: var(--space-4);
   border-radius: var(--radius-md);
   overflow-x: auto;
+  border: 1px solid var(--color-border);
 }
-pre code { background: none; padding: 0; }
+pre code { background: none; padding: 0; color: inherit !important; }
 
 /* ============================================================================
    LAYOUT OVERRIDES FOR STREAMLIT
@@ -251,11 +265,23 @@ header { visibility: hidden; }
   border-radius: var(--radius-lg);
   padding: var(--space-5);
   box-shadow: var(--shadow-sm);
+  transition: border-color var(--transition-normal), box-shadow var(--transition-normal);
+}
+
+.eiq-surface:hover {
+  border-color: var(--color-border-strong);
+  box-shadow: var(--shadow-md);
 }
 
 .eiq-surface--quiet {
   background: var(--color-surface-muted);
   border: none;
+}
+
+.eiq-surface--elevated {
+  background: var(--color-surface-elevated);
+  border: 1px solid var(--color-border);
+  box-shadow: var(--shadow-lg);
 }
 
 /* --- Section Header — Compact, no hero banners --- */
@@ -744,8 +770,8 @@ header { visibility: hidden; }
   color: var(--color-accent) !important;
 }
 .stMarkdown pre {
-  background: var(--color-text) !important;
-  color: var(--color-text-inverse) !important;
+  background: var(--color-surface-muted) !important;
+  color: var(--color-text) !important;
 }
 .stMarkdown pre code {
   background: none !important;
@@ -796,18 +822,19 @@ hr {
 
 /* --- Result Card (Prediction Output) — Single prominent surface --- */
 .eiq-result {
-  background: var(--color-text);
-  color: var(--color-text-inverse);
+  background: var(--color-accent-light);
+  color: var(--color-text);
   border-radius: var(--radius-lg);
   padding: var(--space-6);
   text-align: center;
   box-shadow: var(--shadow-md);
+  border: 1px solid var(--color-accent-border);
 }
 .eiq-result__label {
   font-size: var(--text-xs);
   font-weight: var(--font-medium);
   letter-spacing: 0.08em;
-  opacity: 0.7;
+  color: var(--color-text-muted);
   margin-bottom: var(--space-2);
 }
 .eiq-result__price {
@@ -815,10 +842,11 @@ hr {
   font-weight: var(--font-bold);
   line-height: var(--leading-tight);
   margin-bottom: var(--space-3);
+  color: var(--color-accent);
 }
 .eiq-result__details {
   font-size: var(--text-base);
-  opacity: 0.8;
+  color: var(--color-text-muted);
   line-height: var(--leading-relaxed);
 }
 
@@ -830,25 +858,26 @@ hr {
   margin-top: var(--space-5);
 }
 .eiq-input-item {
-  background: rgba(255, 255, 255, 0.08);
+  background: var(--color-surface-muted);
   border-radius: var(--radius-md);
   padding: var(--space-3);
 }
 .eiq-input-item__label {
   font-size: var(--text-xs);
   letter-spacing: 0.04em;
-  opacity: 0.7;
+  color: var(--color-text-muted);
   margin-bottom: var(--space-1);
 }
 .eiq-input-item__value {
   font-size: var(--text-lg);
   font-weight: var(--font-semibold);
+  color: var(--color-text);
 }
 
 /* --- Disclaimer --- */
 .eiq-disclaimer {
   background: var(--color-warning-light);
-  border: 1px solid #F5D76E;
+  border: 1px solid var(--color-warning);
   border-radius: var(--radius-md);
   padding: var(--space-4);
   margin-top: var(--space-5);
@@ -1392,6 +1421,53 @@ def render_overview() -> None:
     </div>
     """, unsafe_allow_html=True)
 
+    # 3D Analytics Section
+    st.markdown('<div class="eiq-section-header"><h2 class="eiq-section-title">Interactive 3D Analytics</h2></div>', unsafe_allow_html=True)
+
+    st.markdown("""
+    <div class="eiq-surface" style="margin-bottom: var(--space-4);">
+        <p style="color: var(--color-text-muted); margin-bottom: var(--space-3); font-size: var(--text-sm);">
+            Explore the relationship between living area, overall quality, and sale price in three dimensions.
+            Each point represents a historical property sale from the Ames, Iowa dataset (2006–2010).
+            <strong>Note:</strong> These are historical observations, not live market prices or model predictions.
+        </p>
+    </div>
+    """, unsafe_allow_html=True)
+
+    # 3D Scatter Chart
+    with st.spinner("Loading 3D visualization..."):
+        try:
+            # Load training data with sampling for performance
+            viz_data = load_training_data(sample_size=800, random_state=42)
+
+            if len(viz_data) > 0:
+                # Create 3D chart
+                deck = create_3d_scatter_chart(
+                    viz_data,
+                    x_col="GrLivArea",
+                    y_col="OverallQual",
+                    z_col="SalePrice",
+                    sample_size=800,
+                    random_state=42,
+                )
+
+                # Render the 3D chart
+                st.components.v1.html(deck.to_html(as_string=True), height=600)
+
+                # Chart caption
+                st.caption(
+                    f"Interactive 3D scatter plot showing {len(viz_data)} historical property sales from the Ames Housing dataset. "
+                    f"X-axis: Above-ground living area (sq ft), Y-axis: Overall quality (1–10), Z-axis: Sale price ($). "
+                    f"Color encodes sale price (emerald → cyan → white = low → high). "
+                    f"Use mouse to rotate, zoom, and pan. Hover for details. "
+                    f"Data source: Kaggle Ames Housing dataset (2006–2010). Not live market prices."
+                )
+            else:
+                st.warning("Unable to load data for 3D visualization.")
+        except Exception as e:
+            st.error(f"Unable to render 3D visualization: {e}")
+            st.info("3D visualization requires WebGL support. Please ensure your browser supports WebGL.")
+
     # Methodology Section
     st.markdown('<div class="eiq-section-header"><h2 class="eiq-section-title">Methodology</h2></div>', unsafe_allow_html=True)
 
@@ -1849,6 +1925,114 @@ def render_performance() -> None:
             st.info("No diagnostic plots found. Run `python src/train.py` to generate visualizations.")
     else:
         st.info("Figures directory not found. Run training to generate diagnostic plots.")
+
+    # Interactive 2D Analytics
+    st.markdown('<div class="eiq-section-header"><h2 class="eiq-section-title">Interactive 2D Analytics</h2></div>', unsafe_allow_html=True)
+
+    st.markdown("""
+    <div class="eiq-surface" style="margin-bottom: var(--space-4);">
+        <p style="color: var(--color-text-muted); margin-bottom: var(--space-3); font-size: var(--text-sm);">
+            Explore the data through interactive 2D visualizations. All charts use the full training dataset
+            (1,460 observations) and are built with Altair for smooth interaction.
+        </p>
+    </div>
+    """, unsafe_allow_html=True)
+
+    # Load training data for 2D charts
+    with st.spinner("Loading data for 2D analytics..."):
+        try:
+            viz_data = load_training_data(sample_size=None, random_state=42)
+
+            if len(viz_data) > 0:
+                # Chart 1: Sale Price Distribution
+                st.markdown('<div class="eiq-section-header"><h3 class="eiq-section-title" style="font-size: var(--text-lg); margin-bottom: var(--space-2);">Sale Price Distribution</h3></div>', unsafe_allow_html=True)
+                dist_chart = create_sale_price_distribution_chart(viz_data)
+                if dist_chart:
+                    st.altair_chart(dist_chart, use_container_width=True)
+                    st.caption(
+                        "Kernel density estimate of sale prices showing the right-skewed distribution. "
+                        "The median ($163,000) is well below the mean ($180,921), confirming positive skew. "
+                        "Log transformation (log1p) is applied during modeling to normalize the target distribution."
+                    )
+
+                # Chart 2: Living Area vs Sale Price
+                st.markdown('<div class="eiq-section-header"><h3 class="eiq-section-title" style="font-size: var(--text-lg); margin-bottom: var(--space-2);">Living Area vs Sale Price</h3></div>', unsafe_allow_html=True)
+                la_chart = create_living_area_vs_price_chart(viz_data)
+                if la_chart:
+                    st.altair_chart(la_chart, use_container_width=True)
+                    st.caption(
+                        "Scatter plot of above-ground living area vs sale price, colored by overall quality. "
+                        "Strong positive correlation between living area and price. "
+                        "Higher quality homes (darker colors) command premium prices at similar living areas."
+                    )
+
+                # Two columns for Quality and Neighborhood charts
+                col1, col2 = st.columns(2)
+
+                with col1:
+                    # Chart 3: Quality Comparison
+                    st.markdown('<div class="eiq-section-header"><h3 class="eiq-section-title" style="font-size: var(--text-lg); margin-bottom: var(--space-2);">Sale Price by Overall Quality</h3></div>', unsafe_allow_html=True)
+                    qual_chart = create_quality_comparison_chart(viz_data)
+                    if qual_chart:
+                        st.altair_chart(qual_chart, use_container_width=True)
+                        st.caption(
+                            "Box plot showing sale price distribution by overall quality rating (1–10). "
+                            "Clear monotonic relationship: higher quality ratings correspond to higher median prices. "
+                            "Boxes show median, quartiles, and whiskers extend to min/max."
+                        )
+
+                with col2:
+                    # Chart 4: Neighborhood Comparison
+                    st.markdown('<div class="eiq-section-header"><h3 class="eiq-section-title" style="font-size: var(--text-lg); margin-bottom: var(--space-2);">Top Neighborhoods by Median Price</h3></div>', unsafe_allow_html=True)
+                    nbhd_chart = create_neighborhood_comparison_chart(viz_data, top_n=15)
+                    if nbhd_chart:
+                        st.altair_chart(nbhd_chart, use_container_width=True)
+                        st.caption(
+                            "Top 15 neighborhoods by median sale price. "
+                            "Northridge Heights (NridgHt) and Stone Brook (StoneBr) command the highest prices. "
+                            "Sample sizes vary by neighborhood (shown in tooltip)."
+                        )
+
+            else:
+                st.warning("Unable to load data for 2D analytics.")
+        except Exception as e:
+            st.error(f"Unable to render 2D analytics: {e}")
+
+    # Model Validation Diagnostics (if validation predictions available)
+    st.markdown('<div class="eiq-section-header"><h2 class="eiq-section-title">Model Validation Diagnostics</h2></div>', unsafe_allow_html=True)
+
+    with st.spinner("Loading validation predictions..."):
+        pred_data = load_validation_predictions()
+
+        if pred_data is not None and len(pred_data) > 0:
+            # Actual vs Predicted
+            st.markdown('<div class="eiq-section-header"><h3 class="eiq-section-title" style="font-size: var(--text-lg); margin-bottom: var(--space-2);">Actual vs Predicted</h3></div>', unsafe_allow_html=True)
+            avp_chart = create_actual_vs_predicted_chart(pred_data)
+            if avp_chart:
+                st.altair_chart(avp_chart, use_container_width=True)
+                st.caption(
+                    "Actual vs predicted sale prices on the validation set (292 samples). "
+                    "Dashed red line = perfect predictions. Points on the line = perfect accuracy. "
+                    "Color encodes residual (actual − predicted): blue = overpredicted, red = underpredicted. "
+                    "Based on the 3-feature Linear Regression baseline model."
+                )
+
+            # Residuals
+            st.markdown('<div class="eiq-section-header"><h3 class="eiq-section-title" style="font-size: var(--text-lg); margin-bottom: var(--space-2);">Residuals vs Predicted</h3></div>', unsafe_allow_html=True)
+            res_chart = create_residual_chart(pred_data)
+            if res_chart:
+                st.altair_chart(res_chart, use_container_width=True)
+                st.caption(
+                    "Residuals (actual − predicted) vs predicted price. "
+                    "Horizontal red dashed line = zero residual (perfect prediction). "
+                    "Random scatter around zero indicates good model fit. "
+                    "Patterns (e.g., funnel shape) would indicate heteroscedasticity or non-linearity."
+                )
+        else:
+            st.info(
+                "Validation predictions not available. Run `python src/compare_models.py` "
+                "to generate model comparison data with validation predictions."
+            )
 
     # Explainability
     st.markdown('<div class="eiq-section-header"><h2 class="eiq-section-title">Model Explainability</h2></div>', unsafe_allow_html=True)
