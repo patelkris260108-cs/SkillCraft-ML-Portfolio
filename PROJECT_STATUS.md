@@ -335,3 +335,102 @@ LinearRegression (3 features) $35,788 $52,976  0.6341  0.2724
 6. **Tests**: 98 unit tests covering all modules - all passing
 
 7. **Git Hygiene**: `.gitignore` excludes data, venv, models, cache, credentials
+
+---
+
+## Phase 7: Task 1 Test Suite Regression Update
+**Date**: 2026-10-27  
+**Status**: ✅ All 98 Tests Passing
+
+### Summary:
+- Resolved Pandas 2.x integer assignment issue in `tests/test_frontend_inference.py` (`test_validate_batch_csv_non_numeric`) by casting column to `object` prior to setting non-numeric test strings.
+- Updated `test_predict_batch_partial_failure` to use `pd.isna()` for missing prediction error representations.
+- Executed full test suite: **98 passed in 14.01s** (0 failed, 0 skipped).
+- Created dedicated [`task1-house-price/README.md`](task1-house-price/README.md).
+
+---
+
+## Phase 8: Task 2 — Mall Customer Segmentation Completion Log
+**Date**: 2026-10-23  
+**Status**: ✅ Complete (59 Passing Tests)  
+**Track**: Unsupervised Clustering (K-Means)
+
+### Deliverables Created:
+1. **Data Preprocessing & Audit**:
+   - Ingested 200 customer records from Kaggle Mall Customers.
+   - Cleanly excluded non-behavioral `CustomerID`.
+   - Scaled continuous features (`StandardScaler`) and encoded binary gender (`OneHotEncoder`).
+2. **Model Selection & Evaluation**:
+   - Compared Classic 2D (`Annual_Income`, `Spending_Score`) vs. Extended 4D (`Age`, `Annual_Income`, `Spending_Score`, `Gender`) across $k \in [1, 10]$.
+   - Evaluated Inertia/Elbow, Silhouette Coefficient, Davies-Bouldin, and Calinski-Harabasz indices.
+   - Selected $k=5$ Classic (Silhouette: **0.5547**, Davies-Bouldin: **0.5722**).
+   - Serialized models: `models/kmeans_classic_k5.joblib` and `models/kmeans_extended_k5.joblib`.
+3. **Interactive Streamlit Dashboard**:
+   - 6-tab analytical interface in `task2-customer-segmentation/app.py` with Altair interactive scatter plots, unscaled centroid overlays, dynamic filtering, real-time prediction, and CSV export.
+4. **Documentation & Tests**:
+   - Generated 16 diagnostic charts in `reports/figures/`.
+   - Comprehensive reports: `reports/cluster_evaluation.md` and `reports/eda_summary.md`.
+   - Complete test suite: **59 passed in 6.66s**.
+
+---
+
+## Phase 9: Task 3 — Dogs vs. Cats Image Classification Completion Log
+**Date**: 2026-10-25  
+**Status**: ✅ Complete (50 Passing Tests)  
+**Track**: Binary Image Classification (HOG + RBF Kernel SVM)
+
+### Deliverables Created:
+1. **Dataset Ingestion & Benchmark Generation**:
+   - Validated Kaggle `dogs-vs-cats.zip` (812 MB) and inner `train.zip` (543 MB, 25,000 images, 0 corruptions).
+   - Created reproducible 4,000-image balanced benchmark (`reports/benchmark_manifest.csv`, seed 42): Train (2,800), Val (600), Test (600).
+   - Safe streaming extraction into `data/interim/`.
+2. **HOG Feature Extraction & SVM Training**:
+   - Extracted 1,764-dimensional HOG features (64x64 grayscale, 9 orientations, 8x8 cell, 2x2 block, L2-Hys).
+   - Evaluated Linear SVM vs. RBF Kernel SVM vs. SGD.
+   - Selected RBF Kernel SVM ($C=1.0$) based on validation accuracy (**74.67%**).
+   - Evaluated once on held-out test set: **72.50% Accuracy**, **72.50% Macro F1**, **0.7856 ROC-AUC**.
+   - Serialized pipeline to `models/best_svm_pipeline.joblib` and `models/hog_config.json`.
+3. **Interactive Streamlit Web App**:
+   - Multi-tab application in `task3-dogs-vs-cats/app.py` supporting custom image uploads (up to 10 MB) and test gallery evaluation.
+   - Live HOG gradient orientation visualizer (Inferno colormap) and signed SVM decision margin gauge.
+4. **Documentation & Tests**:
+   - Reports in `reports/modeling_report.md` and `reports/eda_summary.md`.
+   - Complete test suite: **50 passed in 12.40s**.
+
+---
+
+## Phase 10: Task 4 — Hand Gesture Recognition Completion Log
+**Date**: 2026-10-26  
+**Status**: ✅ Complete (49 Passing Tests)  
+**Track**: Multi-Class Near-Infrared Image Classification (HOG + Linear SVM)
+
+### Deliverables Created:
+1. **Archive Safety Audit & Canonical Extraction**:
+   - Non-extracting CRC32 verification of `archive.zip` (2.13 GB).
+   - Discovered 20,000 duplicate hierarchy frames (`leapgestrecog/leapGestRecog/`) and filtered strictly to canonical `leapGestRecog/` members.
+   - Extracted 20,000 canonical NIR frames with Pillow header integrity verification.
+   - Generated deterministic `reports/gesture_manifest.csv` with strict **Subject-Independent Partitioning** (Train: Subjects 00–06, Val: Subject 07, Test: Subjects 08–09; zero subject leakage).
+2. **Feature Extraction & Modeling**:
+   - Extracted 2,700 HOG features per frame (160x60 grayscale preserving native 2.67:1 aspect ratio, 9 orientations, 10x10 cell, 2x2 block, L2-Hys).
+   - Compared 5 candidate models; selected `SGD_LinearSVM` by Validation Macro F1 on Subject 07 (**79.75%**, Accuracy **79.95%**).
+   - Evaluated on held-out test subjects 08 & 09: **62.20% Accuracy**, **61.25% Macro F1**, **65.20% Precision**, **62.20% Recall**.
+   - Serialized model to `models/best_gesture_model.joblib` and `models/model_config.json`.
+3. **Interactive Streamlit Web App**:
+   - Multi-tab application in `task4-hand-gesture-recognition/app.py` on port 8503.
+   - Real-time 2D HOG orientation map rendering, class decision margin bars, and explicit technical callouts on static 2D frame ambiguity and uncalibrated margins.
+4. **Documentation & Tests**:
+   - Generated 7 figures in `reports/figures/`, `reports/modeling_report.md`, and `reports/eda_summary.md`.
+   - Complete test suite: **49 passed in 30.35s**.
+
+---
+
+## Portfolio Final Verification Summary
+**Audit Date**: 2026-10-27  
+**Total Tests Executed & Passing**: **256 / 256 Passed (100%)**
+- Task 1 (House Price Prediction): 98 / 98 Passed
+- Task 2 (Customer Segmentation): 59 / 59 Passed
+- Task 3 (Dogs vs. Cats Classification): 50 / 50 Passed
+- Task 4 (Hand Gesture Recognition): 49 / 49 Passed
+- All 4 interactive Streamlit applications verified operational.
+- Large datasets (3.5+ GB archives, 24,000+ extracted images) safely excluded by `.gitignore`.
+- Portfolio verified ready for internship submission.

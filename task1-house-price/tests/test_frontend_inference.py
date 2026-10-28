@@ -111,6 +111,7 @@ class TestBatchCSVValidation:
     def test_validate_batch_csv_non_numeric(self):
         """Test non-numeric values are converted to NaN and detected as missing."""
         df = self.create_valid_df()
+        df["GrLivArea"] = df["GrLivArea"].astype(object)
         df.loc[0, "GrLivArea"] = "not_a_number"
         errors, cleaned = app.validate_batch_csv(df)
         # Function converts non-numeric to NaN, then missing values check catches it
@@ -355,9 +356,9 @@ class TestBatchPrediction:
         assert results["Predicted_SalePrice"].iloc[0] == 200000.0
         assert np.isnan(results["Predicted_SalePrice"].iloc[1])
         assert results["Predicted_SalePrice"].iloc[2] == 150000.0
-        assert results["Prediction_Error"].iloc[0] is None
+        assert pd.isna(results["Prediction_Error"].iloc[0])
         assert "Bad input" in results["Prediction_Error"].iloc[1]
-        assert results["Prediction_Error"].iloc[2] is None
+        assert pd.isna(results["Prediction_Error"].iloc[2])
 
     @patch('app.HousePricePredictor')
     def test_predict_batch_all_failure(self, mock_predictor_class):

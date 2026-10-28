@@ -1,0 +1,37 @@
+# Task 4 specific gitignore
+
+# Raw and interim/processed datasets
+archive.zip
+data/
+*.zip
+*.tar
+*.gz
+*.7z
+
+# Image files
+*.png
+*.jpg
+*.jpeg
+
+# Precomputed feature matrices
+*.npy
+*.npz
+
+# Model artifacts
+models/*.joblib
+models/*.pkl
+models/*.h5
+models/*.keras
+
+# Python and test caches
+__pycache__/
+.pytest_cache/
+
+# Allow report CSVs and figures
+!reports/*.csv
+!reports/**/*.csv
+!reports/figures/*.png
+!reports/figures/**/*.png
+
+# Allow the trained model required by the Streamlit app
+!models/best_gesture_model.joblib

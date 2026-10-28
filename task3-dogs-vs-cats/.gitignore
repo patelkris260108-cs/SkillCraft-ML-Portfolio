@@ -1,0 +1,34 @@
+# Task 3 specific gitignore
+
+# Raw and processed datasets
+data/raw/
+data/interim/
+data/processed/
+*.zip
+*.tar
+*.gz
+*.7z
+
+# Image files in data/
+data/**/*.jpg
+data/**/*.jpeg
+data/**/*.png
+
+# Large precomputed feature arrays
+*.npy
+*.npz
+
+# Model artifacts
+models/*.joblib
+models/*.pkl
+
+# Python and test caches
+__pycache__/
+.pytest_cache/
+
+# Allow report and metric CSVs within Task 3 reports/ (overriding root *.csv)
+!reports/*.csv
+!reports/**/*.csv
+
+# Allow the trained model required by the Streamlit app
+!models/best_svm_pipeline.joblib

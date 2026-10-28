@@ -1,0 +1,19 @@
+{
+  "target_size": [
+    64,
+    64
+  ],
+  "orientations": 9,
+  "pixels_per_cell": [
+    8,
+    8
+  ],
+  "cells_per_block": [
+    2,
+    2
+  ],
+  "block_norm": "L2-Hys",
+  "transform_sqrt": true,
+  "feature_dim": 1764,
+  "best_model_name": "RBF Kernel SVM (C=1.0)"
+}

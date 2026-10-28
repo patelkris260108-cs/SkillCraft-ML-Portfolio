@@ -1,0 +1,147 @@
+{
+  "selected_model": "SGD_LinearSVM",
+  "classes": [
+    "01_palm",
+    "02_l",
+    "03_fist",
+    "04_fist_moved",
+    "05_thumb",
+    "06_index",
+    "07_ok",
+    "08_palm_moved",
+    "09_c",
+    "10_down"
+  ],
+  "class_to_idx": {
+    "01_palm": 0,
+    "02_l": 1,
+    "03_fist": 2,
+    "04_fist_moved": 3,
+    "05_thumb": 4,
+    "06_index": 5,
+    "07_ok": 6,
+    "08_palm_moved": 7,
+    "09_c": 8,
+    "10_down": 9
+  },
+  "idx_to_class": {
+    "0": "01_palm",
+    "1": "02_l",
+    "2": "03_fist",
+    "3": "04_fist_moved",
+    "4": "05_thumb",
+    "5": "06_index",
+    "6": "07_ok",
+    "7": "08_palm_moved",
+    "8": "09_c",
+    "9": "10_down"
+  },
+  "feature_config": {
+    "feature_extractor": "scikit-image HOG",
+    "feature_config": {
+      "image_width": 160,
+      "image_height": 60,
+      "native_width": 640,
+      "native_height": 240,
+      "orientations": 9,
+      "pixels_per_cell": [
+        10,
+        10
+      ],
+      "cells_per_block": [
+        2,
+        2
+      ],
+      "block_norm": "L2-Hys",
+      "feature_dim": 2700
+    },
+    "class_to_idx": {
+      "01_palm": 0,
+      "02_l": 1,
+      "03_fist": 2,
+      "04_fist_moved": 3,
+      "05_thumb": 4,
+      "06_index": 5,
+      "07_ok": 6,
+      "08_palm_moved": 7,
+      "09_c": 8,
+      "10_down": 9
+    },
+    "idx_to_class": {
+      "0": "01_palm",
+      "1": "02_l",
+      "2": "03_fist",
+      "3": "04_fist_moved",
+      "4": "05_thumb",
+      "5": "06_index",
+      "6": "07_ok",
+      "7": "08_palm_moved",
+      "8": "09_c",
+      "9": "10_down"
+    },
+    "train_subjects": [
+      "00",
+      "01",
+      "02",
+      "03",
+      "04",
+      "05",
+      "06"
+    ],
+    "val_subjects": [
+      "07"
+    ],
+    "test_subjects": [
+      "08",
+      "09"
+    ],
+    "split_summary": {
+      "train": {
+        "num_samples": 14000,
+        "feature_shape": [
+          14000,
+          2700
+        ],
+        "dtype": "float32",
+        "subjects": [
+          "00",
+          "01",
+          "02",
+          "03",
+          "04",
+          "05",
+          "06"
+        ]
+      },
+      "val": {
+        "num_samples": 2000,
+        "feature_shape": [
+          2000,
+          2700
+        ],
+        "dtype": "float32",
+        "subjects": [
+          "07"
+        ]
+      },
+      "test": {
+        "num_samples": 4000,
+        "feature_shape": [
+          4000,
+          2700
+        ],
+        "dtype": "float32",
+        "subjects": [
+          "08",
+          "09"
+        ]
+      }
+    },
+    "elapsed_seconds": 107.11
+  },
+  "pipeline_steps": [
+    "scaler",
+    "clf"
+  ],
+  "timestamp": "2026-10-26 14:40:18"
+}

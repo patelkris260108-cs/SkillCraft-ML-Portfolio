@@ -1,4 +1,4 @@
-# Byte-compiled / optimized / DLL files
+﻿# Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
 *$py.class
@@ -20,6 +20,14 @@ models/
 *.pkl
 *.h5
 *.keras
+!task3-dogs-vs-cats/models/
+!task3-dogs-vs-cats/models/hog_config.json
+!task4-hand-gesture-recognition/models/
+!task4-hand-gesture-recognition/models/model_config.json
+
+# Worktrees and development artifacts
+.claude/worktrees/
+preserved-artifacts/
 
 # Jupyter Notebook
 .ipynb_checkpoints
@@ -47,3 +55,14 @@ kaggle.json
 # Environment variables
 .env.local
 .env.*.local
+# Allow required trained model artifacts for the four portfolio tasks
+!task1-house-price/models/
+!task1-house-price/models/baseline_pipeline.joblib
+!task2-customer-segmentation/models/
+!task2-customer-segmentation/models/kmeans_classic_k5.joblib
+!task2-customer-segmentation/models/kmeans_extended_k5.joblib
+!task2-customer-segmentation/reports/
+!task2-customer-segmentation/reports/cluster_evaluation.csv
+
+# Local backup files
+.gitignore.backup-20261028-092228
